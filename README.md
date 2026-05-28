@@ -3,43 +3,11 @@
 Juego de Sudoku 6×6 desarrollado en Java con JavaFX como mini proyecto académico para el curso **750014C — Fundamentos de Programación Orientada a Eventos**.
 
 ---
-
-## Tabla de contenidos
-
-- [Descripción](#descripción)
-- [Tecnologías](#tecnologías)
-- [Arquitectura](#arquitectura)
-- [Estructuras de datos](#estructuras-de-datos)
-- [Patrones de diseño](#patrones-de-diseño)
-- [Funcionalidades](#funcionalidades)
-- [Heurísticas de usabilidad aplicadas](#heurísticas-de-usabilidad-aplicadas)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Requisitos previos](#requisitos-previos)
-- [Cómo ejecutar](#cómo-ejecutar)
-- [Generar Javadoc](#generar-javadoc)
-- [Autores](#autores)
-
----
-
 ## Descripción
 
 Soduko es una variante del clásico Sudoku jugado en una cuadrícula de **6×6** dividida en seis bloques de **2×3**. El objetivo es completar el tablero con números del **1 al 6** de modo que cada fila, columna y bloque contenga todos los números sin repetir.
 
 Cada partida genera un tablero distinto mediante un algoritmo de **backtracking iterativo**. Al iniciar, cada bloque muestra 2 números fijos como pistas. El jugador completa el resto usando teclado o la barra de dígitos inferior.
-
----
-
-## Tecnologías
-
-| Herramienta | Versión |
-|---|---|
-| Java SDK | Amazon Corretto 17.0.9 |
-| JavaFX | 21.0.6 |
-| Maven | 3.8.5 (via wrapper) |
-| Scene Builder | FXML |
-| IDE | IntelliJ IDEA |
-| Control de versiones | Git + GitHub |
-
 ---
 
 ## Arquitectura
@@ -232,5 +200,6 @@ La documentación HTML se genera en `target/reports/apidocs/index.html`.
 ---
 
 ## Autores
+Yostin Ramirez 2519674 - Joseph Terreros 2521011
 
 Desarrollado por estudiantes del curso **750014C — Fundamentos de Programación Orientada a Eventos**.
