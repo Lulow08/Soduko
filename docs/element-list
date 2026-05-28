@@ -1,0 +1,6 @@
+module:com.bifasico.soduko
+com.bifasico.soduko
+com.bifasico.soduko.controller
+com.bifasico.soduko.controller.cellInputHandler
+com.bifasico.soduko.model
+com.bifasico.soduko.view
