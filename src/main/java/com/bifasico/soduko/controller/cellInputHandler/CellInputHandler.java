@@ -1,5 +1,6 @@
 package com.bifasico.soduko.controller.cellInputHandler;
 
+
 import com.bifasico.soduko.model.BoardManager;
 import com.bifasico.soduko.model.Cell;
 import javafx.scene.input.KeyCode;
@@ -28,8 +29,10 @@ public class CellInputHandler extends CellInputAdapter {
             char key = text.charAt(0);
             if (key >= '1' && key <= '6') {
                 int digit = Character.getNumericValue(key);
+                java.util.ArrayList<com.bifasico.soduko.model.Cell> collisions =
+                        boardManager.getBoard().getConflictingCells(row, col, digit);
                 boolean valid = boardManager.placeGuess(row, col, digit);
-                callback.onGuessPlaced(row, col, digit, valid);
+                callback.onGuessPlaced(row, col, digit, valid, collisions);
                 if (boardManager.isGameWon()) {
                     callback.onGameWon();
                 }
@@ -38,7 +41,6 @@ public class CellInputHandler extends CellInputAdapter {
         }
         if (event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) {
             boardManager.undoLastGuess();
-            Cell cell = boardManager.getBoard().getCellAt(row, col);
             callback.onGuessCleared(row, col);
         }
     }
@@ -59,8 +61,12 @@ public class CellInputHandler extends CellInputAdapter {
         if (hint == null) {
             return;
         }
+        // Collect cells that will conflict with this hint BEFORE placing it,
+        // so the hint cell itself is never marked as error.
+        java.util.ArrayList<Cell> collisions =
+                boardManager.getBoard().getConflictingCells(hint.getRow(), hint.getColumn(), hint.getValue());
         boardManager.placeGuess(hint.getRow(), hint.getColumn(), hint.getValue());
-        callback.onHintApplied(hint.getRow(), hint.getColumn());
+        callback.onHintApplied(hint.getRow(), hint.getColumn(), collisions);
         if (boardManager.isGameWon()) {
             callback.onGameWon();
         }
@@ -78,11 +84,13 @@ public class CellInputHandler extends CellInputAdapter {
      * Callback implemented by the controller.
      */
     public interface CellInputCallback {
-        void onGuessPlaced(int row, int col, int value, boolean valid);
+        void onGuessPlaced(int row, int col, int value, boolean valid,
+                           java.util.ArrayList<com.bifasico.soduko.model.Cell> collisions);
         void onGuessCleared(int row, int col);
         void onCellSelected(int row, int col);
         void onDigitSelected(int digit);
-        void onHintApplied(int row, int col);
+        void onHintApplied(int row, int col,
+                           java.util.ArrayList<com.bifasico.soduko.model.Cell> collisions);
         void onGameWon();
     }
 }
