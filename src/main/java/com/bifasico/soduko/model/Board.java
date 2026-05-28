@@ -150,6 +150,36 @@ public class Board {
     }
 
     /**
+     * Returns all non-given cells whose current guess conflicts with the given
+     * cell's value (same row, column, or region), excluding the cell itself.
+     * Used to highlight collision partners when a guess is placed.
+     *
+     * @param row    the absolute row of the placed guess
+     * @param column the absolute column of the placed guess
+     * @param value  the placed guess value
+     * @return list of conflicting cells (may be empty)
+     */
+    public ArrayList<Cell> getConflictingCells(int row, int column, int value) {
+        ArrayList<Cell> conflicts = new ArrayList<>();
+        for (Region region : regions) {
+            for (Cell cell : region.getCells()) {
+                if (cell.getRow() == row && cell.getColumn() == column) continue;
+                if (cell.isGiven()) continue;
+                int display = cell.getGuess();
+                if (display != value) continue;
+                boolean sameRow    = cell.getRow() == row;
+                boolean sameCol    = cell.getColumn() == column;
+                boolean sameRegion = getRegionFor(cell.getRow(), cell.getColumn()) ==
+                        getRegionFor(row, column);
+                if (sameRow || sameCol || sameRegion) {
+                    conflicts.add(cell);
+                }
+            }
+        }
+        return conflicts;
+    }
+
+    /**
      * Returns whether the board is fully and correctly solved.
      * Every non-given cell must have a guess matching its solution value.
      *

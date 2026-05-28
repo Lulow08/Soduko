@@ -4,6 +4,7 @@ import com.bifasico.soduko.controller.cellInputHandler.CellInputHandler;
 import com.bifasico.soduko.model.Board;
 import com.bifasico.soduko.model.BoardManager;
 import com.bifasico.soduko.model.Cell;
+
 import com.bifasico.soduko.view.GameView;
 import com.bifasico.soduko.view.SceneManager;
 import javafx.fxml.FXML;
@@ -118,11 +119,28 @@ public class GameController implements Initializable, CellInputHandler.CellInput
     /* ── CellInputCallback ── */
 
     @Override
-    public void onGuessPlaced(int row, int col, int value, boolean valid) {
+    public void onGuessPlaced(int row, int col, int value, boolean valid,
+                              java.util.ArrayList<com.bifasico.soduko.model.Cell> collisions) {
         Cell cell = boardManager.getBoard().getCellAt(row, col);
-        GameView.CellState state = valid ? GameView.CellState.CORRECT : GameView.CellState.ERROR;
+
+        // Determine the visual state of the placed cell:
+        // - Collision with existing cells → ERROR (red)
+        // - No collision but wrong answer → ERROR (red)
+        // - Correct answer → CORRECT
+        GameView.CellState state;
+        if (!valid || value != cell.getValue()) {
+            state = GameView.CellState.ERROR;
+        } else {
+            state = GameView.CellState.CORRECT;
+        }
         gameView.refreshCell(row, col, cell, state);
-        if (valid) {
+
+        // Also mark every pre-existing cell that now collides with this guess.
+        for (com.bifasico.soduko.model.Cell conflict : collisions) {
+            gameView.refreshCell(conflict.getRow(), conflict.getColumn(), conflict, GameView.CellState.ERROR);
+        }
+
+        if (state == GameView.CellState.CORRECT) {
             checkDigitCompletion(value);
         }
         selectedRow = row;
@@ -133,6 +151,10 @@ public class GameController implements Initializable, CellInputHandler.CellInput
     public void onGuessCleared(int row, int col) {
         Cell cell = boardManager.getBoard().getCellAt(row, col);
         gameView.refreshCell(row, col, cell, GameView.CellState.NORMAL);
+
+        // After clearing, neighbours that were in ERROR solely because of this
+        // cell may no longer be in conflict — re-evaluate them.
+        reEvaluateNeighbours(row, col);
     }
 
     @Override
@@ -148,8 +170,10 @@ public class GameController implements Initializable, CellInputHandler.CellInput
         if (selectedRow != -1 && selectedCol != -1) {
             Cell cell = boardManager.getBoard().getCellAt(selectedRow, selectedCol);
             if (!cell.isGiven()) {
+                java.util.ArrayList<com.bifasico.soduko.model.Cell> collisions =
+                        boardManager.getBoard().getConflictingCells(selectedRow, selectedCol, digit);
                 boolean valid = boardManager.placeGuess(selectedRow, selectedCol, digit);
-                onGuessPlaced(selectedRow, selectedCol, digit, valid);
+                onGuessPlaced(selectedRow, selectedCol, digit, valid, collisions);
                 if (boardManager.isGameWon()) {
                     onGameWon();
                 }
@@ -158,10 +182,17 @@ public class GameController implements Initializable, CellInputHandler.CellInput
     }
 
     @Override
-    public void onHintApplied(int row, int col) {
+    public void onHintApplied(int row, int col,
+                              java.util.ArrayList<com.bifasico.soduko.model.Cell> collisions) {
         Cell cell = boardManager.getBoard().getCellAt(row, col);
+        // The hint cell is always shown with the hint animation — never as error.
         gameView.animateHint(row, col, cell);
         checkDigitCompletion(cell.getValue());
+
+        // Any cell that was already wrong and now collides with the hint gets marked red.
+        for (com.bifasico.soduko.model.Cell conflict : collisions) {
+            gameView.refreshCell(conflict.getRow(), conflict.getColumn(), conflict, GameView.CellState.ERROR);
+        }
     }
 
     @Override
@@ -182,8 +213,34 @@ public class GameController implements Initializable, CellInputHandler.CellInput
         }
     }
 
-    /**
-     * Builds a minimal synthetic KeyEvent carrying just the digit character,
+    private void reEvaluateNeighbours(int clearedRow, int clearedCol) {
+        Board board = boardManager.getBoard();
+        for (com.bifasico.soduko.model.Region region : board.getRegions()) {
+            for (Cell neighbour : region.getCells()) {
+                if (neighbour.isGiven()) continue;
+                if (neighbour.getGuess() == 0) continue;
+                int nr = neighbour.getRow();
+                int nc = neighbour.getColumn();
+                boolean sameRow    = nr == clearedRow;
+                boolean sameCol    = nc == clearedCol;
+                boolean sameRegion = board.getRegionFor(nr, nc) == board.getRegionFor(clearedRow, clearedCol);
+                if (!sameRow && !sameCol && !sameRegion) continue;
+
+                // Re-check whether this neighbour still has any conflict.
+                boolean stillConflicts = !board.isGuessValid(nr, nc, neighbour.getGuess());
+                boolean isWrong = neighbour.getGuess() != neighbour.getValue();
+                GameView.CellState newState;
+                if (stillConflicts || isWrong) {
+                    newState = GameView.CellState.ERROR;
+                } else {
+                    newState = neighbour.isMarked() ? GameView.CellState.CORRECT : GameView.CellState.NORMAL;
+                }
+                gameView.refreshCell(nr, nc, neighbour, newState);
+            }
+        }
+    }
+
+    /** carrying just the digit character,
      * used when the player selects a digit from the toolbar then clicks a cell.
      */
     private KeyEvent syntheticKeyEvent(int digit) {
