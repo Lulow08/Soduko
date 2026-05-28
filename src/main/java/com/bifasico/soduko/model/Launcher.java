@@ -11,7 +11,7 @@ public class Launcher {
 
     private static final String APP_TITLE    = "Soduko";
     private static final String FAVICON_PATH = "/icons/favicon.png";
-    private static final String ENTRY_SCENE  = "menu-view.fxml";
+    private static final String ENTRY_SCENE  = "game-view.fxml";
 
     public void start(Stage stage) throws IOException {
         /* Image favicon = new Image(Objects.requireNonNull(
@@ -19,12 +19,12 @@ public class Launcher {
         )); */
 
         stage.setTitle(APP_TITLE);
-        stage.setResizable(false);
+        stage.setResizable(true);
         // stage.getIcons().add(favicon);
 
         SceneManager sceneManager = SceneManager.getInstance();
         sceneManager.setMainStage(stage);
-        // sceneManager.loadFonts();
+        sceneManager.loadFonts();
         sceneManager.switchScene(ENTRY_SCENE);
     }
 }

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.bifasico.soduko.controller.GameController"
+      styleClass="game-root"
+      stylesheets="@../css/styles.css">
+
+    <TextFlow styleClass="game-title">
+        <Text text="So"    style="-fx-fill: #5B5BD6; -fx-font-size: 26px; -fx-font-weight: 800;"/>
+        <Text text="duko"  style="-fx-fill: #FFFFFF;  -fx-font-size: 26px; -fx-font-weight: 800;"/>
+    </TextFlow>
+
+    <StackPane>
+
+        <VBox styleClass="board-outer" alignment="CENTER">
+            <GridPane fx:id="boardGrid" styleClass="board-grid"/>
+        </VBox>
+
+        <StackPane fx:id="winOverlay" styleClass="win-overlay"
+                   visible="true" managed="true">
+
+            <VBox fx:id="menuContent" alignment="CENTER" spacing="0">
+                <Button fx:id="playButton" text="􀊄  Jugar"
+                        styleClass="btn-play"
+                        onAction="#onPlay"/>
+            </VBox>
+
+            <VBox fx:id="winContent" alignment="CENTER" spacing="24"
+                  visible="false" managed="false">
+                <Label text="Ganaste" styleClass="win-title"/>
+                <Button text="Ir al Menú"
+                        styleClass="btn-go-to-menu"
+                        onAction="#onGoToMenu"/>
+            </VBox>
+
+        </StackPane>
+
+    </StackPane>
+
+    <HBox fx:id="toolbar" styleClass="toolbar"
+          alignment="CENTER" managed="false" visible="false">
+
+        <Button fx:id="undoButton" text="􀱍"
+                styleClass="btn-undo"
+                onAction="#onUndo"/>
+
+        <Button fx:id="digitButton1" text="1" styleClass="btn-digit" onAction="#onDigitPressed" userData="1"/>
+        <Button fx:id="digitButton2" text="2" styleClass="btn-digit" onAction="#onDigitPressed" userData="2"/>
+        <Button fx:id="digitButton3" text="3" styleClass="btn-digit" onAction="#onDigitPressed" userData="3"/>
+        <Button fx:id="digitButton4" text="4" styleClass="btn-digit" onAction="#onDigitPressed" userData="4"/>
+        <Button fx:id="digitButton5" text="5" styleClass="btn-digit" onAction="#onDigitPressed" userData="5"/>
+        <Button fx:id="digitButton6" text="6" styleClass="btn-digit" onAction="#onDigitPressed" userData="6"/>
+
+        <Button fx:id="hintButton" text="􁷘"
+                styleClass="btn-hint"
+                onAction="#onHintRequested"/>
+
+    </HBox>
+
+</VBox>
